@@ -4,20 +4,29 @@ import ru.practicum.shareit.item.model.Item;
 
 public class ItemMapper {
     public static ItemDto toItemDto(Item item) {
-        return ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        return itemDto;
     }
 
     public static Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .build();
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        return item;
+    }
+
+    public static ItemDtoWithBookings toItemDtoWithBookings(Item item) {
+        ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
+        itemDtoWithBookings.setId(item.getId());
+        itemDtoWithBookings.setName(item.getName());
+        itemDtoWithBookings.setDescription(item.getDescription());
+        itemDtoWithBookings.setAvailable(item.getAvailable());
+        return itemDtoWithBookings;
     }
 }
