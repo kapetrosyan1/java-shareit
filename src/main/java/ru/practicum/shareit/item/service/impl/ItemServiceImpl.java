@@ -129,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: обработка запроса на добавление комментария к вещи с id {} от пользователя {}",
                 itemId, userId);
         bookingStorage.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, userId, BookingStatus.APPROVED,
-                LocalDateTime.now()).orElseThrow(()-> new BadRequestException("Пользователь " + userId +
+                LocalDateTime.now()).orElseThrow(() -> new BadRequestException("Пользователь " + userId +
                 " не брал в аренду вещь " + itemId));
         Item item = storage.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с id " + itemId +
                 " не существует"));
