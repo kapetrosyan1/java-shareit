@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
-public class CommentDto {
+public class CommentRequestDto {
     private Long id;
     @NotBlank
     @Size(max = 512)

@@ -3,7 +3,9 @@ package ru.practicum.shareit.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserCreationDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -18,28 +20,28 @@ public class UserController {
     private final UserService service;
 
     @GetMapping
-    public List<UserDto> findAll() {
+    public List<UserResponseDto> findAll() {
         log.info("UserController: обработка запроса на получение всех пользователей");
         return service.findAll();
     }
 
     @GetMapping("/{userId}")
-    public UserDto findById(@PathVariable Long userId) {
+    public UserResponseDto findById(@PathVariable Long userId) {
         log.info("UserController: обработка запроса на получение пользователя с id {}", userId);
         return service.findById(userId);
     }
 
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto userDto) {
-        log.info("UserController: обработка запроса на создание пользователя {}}", userDto.toString());
-        return service.create(userDto);
+    public UserResponseDto create(@Valid @RequestBody UserCreationDto userCreationDto) {
+        log.info("UserController: обработка запроса на создание пользователя {}}", userCreationDto.toString());
+        return service.create(userCreationDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@Valid @RequestBody UserDto userDto,
-                          @PathVariable Long userId) {
+    public UserResponseDto update(@Valid @RequestBody UserRequestDto userRequestDto,
+                                  @PathVariable Long userId) {
         log.info("UserController: обработка запроса на обновление пользователя с id {}", userId);
-        return service.update(userDto, userId);
+        return service.update(userRequestDto, userId);
     }
 
     @DeleteMapping("{userId}")

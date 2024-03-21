@@ -1,36 +1,38 @@
 package ru.practicum.shareit.item.comment;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class CommentMapper {
-    public static CommentDto toCommentDto(Comment comment) {
-        CommentDto commentDto = new CommentDto();
-        commentDto.setId(comment.getId());
-        commentDto.setText(comment.getText());
-        commentDto.setAuthorName(comment.getAuthor().getName());
-        commentDto.setCreated(comment.getCreated());
-        return commentDto;
-    }
-
-    public static Comment toComment(CommentDto commentDto, User author, Item item) {
+    public Comment toComment(CommentRequestDto commentRequestDto, User author, Item item) {
         Comment comment = new Comment();
-        comment.setId(commentDto.getId());
-        comment.setText(commentDto.getText());
+        comment.setId(commentRequestDto.getId());
+        comment.setText(commentRequestDto.getText());
         comment.setAuthor(author);
         comment.setItem(item);
-        comment.setCreated(commentDto.getCreated());
+        comment.setCreated(commentRequestDto.getCreated());
         return comment;
     }
 
-    public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
-        List<CommentDto> commentDtoList = new ArrayList<>();
+    public CommentResponseDto toCommentResponseDto(Comment comment) {
+        CommentResponseDto commentResponseDto = new CommentResponseDto();
+        commentResponseDto.setId(comment.getId());
+        commentResponseDto.setText(comment.getText());
+        commentResponseDto.setAuthorName(comment.getAuthor().getName());
+        commentResponseDto.setCreated(comment.getCreated());
+        return commentResponseDto;
+    }
+
+    public List<CommentResponseDto> toCommentResponseDtoList(List<Comment> comments) {
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
         for (Comment comment : comments) {
-            commentDtoList.add(toCommentDto(comment));
+            commentResponseDtoList.add(toCommentResponseDto(comment));
         }
-        return commentDtoList;
+        return commentResponseDtoList;
     }
 }

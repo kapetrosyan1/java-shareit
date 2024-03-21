@@ -4,14 +4,14 @@ import lombok.Data;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import javax.validation.constraints.Future;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+public class BookingRequestDto {
     private Long id;
-    @Min(1)
+    @Positive
     private Long itemId;
     private Long bookerId;
     @Future
