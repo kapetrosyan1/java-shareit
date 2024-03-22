@@ -99,40 +99,35 @@ public class BookingServiceImpl implements BookingService {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
         State state = stringToState(stateString);
+        List<Booking> bookings;
         switch (state) {
             case ALL:
-                return storage.findAllByBookerId(userId, Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerId(userId, Sort.by(DESC, "startDate"));
+                break;
             case CURRENT:
-                return storage.findAllByBookerIdAndStartDateBeforeAndEndDateAfter(userId, LocalDateTime.now(),
-                                LocalDateTime.now(), Sort.by(DESC, "startDate"))
-                        .stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerIdAndStartDateBeforeAndEndDateAfter(userId, LocalDateTime.now(),
+                        LocalDateTime.now(), Sort.by(DESC, "startDate"));
+                break;
             case PAST:
-                return storage.findAllByBookerIdAndEndDateBefore(userId, LocalDateTime.now(),
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerIdAndEndDateBefore(userId, LocalDateTime.now(),
+                        Sort.by(DESC, "startDate"));
+                break;
             case FUTURE:
-                return storage.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(),
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(),
+                        Sort.by(DESC, "startDate"));
+                break;
             case WAITING:
-                return storage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING,
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING,
+                        Sort.by(DESC, "startDate"));
+                break;
             case REJECTED:
-                return storage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED,
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED,
+                        Sort.by(DESC, "startDate"));
+                break;
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
+        return bookings.stream().map(BookingMapper::toBookingDtoWithItemAndUser).collect(Collectors.toList());
     }
 
     @Override
@@ -143,41 +138,37 @@ public class BookingServiceImpl implements BookingService {
         if (ids.isEmpty()) {
             throw new NotFoundException(String.format("У пользователя с id %d нет вещей в собственности", ownerId));
         }
+        List<Booking> bookings;
         State state = stringToState(stateString);
         switch (state) {
             case ALL:
-                return storage.findAllByItemOwnerId(ownerId, Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerId(ownerId, Sort.by(DESC, "startDate"));
+                break;
             case CURRENT:
-                return storage.findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfter(
-                                ownerId, LocalDateTime.now(), LocalDateTime.now(),
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfter(
+                        ownerId, LocalDateTime.now(), LocalDateTime.now(),
+                        Sort.by(DESC, "startDate"));
+                break;
             case PAST:
-                return storage.findAllByItemOwnerIdAndEndDateBefore(ownerId, LocalDateTime.now(),
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerIdAndEndDateBefore(ownerId, LocalDateTime.now(),
+                        Sort.by(DESC, "startDate"));
+                break;
             case FUTURE:
-                return storage.findAllByItemOwnerIdAndStartDateAfter(ownerId, LocalDateTime.now(),
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerIdAndStartDateAfter(ownerId, LocalDateTime.now(),
+                        Sort.by(DESC, "startDate"));
+                break;
             case WAITING:
-                return storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING,
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING,
+                        Sort.by(DESC, "startDate"));
+                break;
             case REJECTED:
-                return storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED,
-                                Sort.by(DESC, "startDate")).stream()
-                        .map(BookingMapper::toBookingDtoWithItemAndUser)
-                        .collect(Collectors.toList());
+                bookings = storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED,
+                        Sort.by(DESC, "startDate"));
+                break;
             default:
                 throw new BadRequestException(String.format("Unknown state: %s", stateString));
         }
+        return bookings.stream().map(BookingMapper::toBookingDtoWithItemAndUser).collect(Collectors.toList());
     }
 
     private State stringToState(String stateString) {

@@ -10,6 +10,8 @@ import ru.practicum.shareit.booking.service.BookingService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.Constant.USER_HEADER;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -19,27 +21,27 @@ public class BookingController {
 
     @PostMapping
     public BookingDtoWithItemAndUser addRequest(@RequestBody @Valid BookingRequestDto bookingRequestDto,
-                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                                @RequestHeader(USER_HEADER) Long userId) {
         log.info("BookingController: обработка запроса на добавление бронирования");
         return service.addRequest(bookingRequestDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDtoWithItemAndUser update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long bookingId,
+    public BookingDtoWithItemAndUser update(@RequestHeader(USER_HEADER) Long ownerId, @PathVariable Long bookingId,
                                             @RequestParam Boolean approved) {
         log.info("BookingController: обработка запроса на обновление бронирования");
         return service.update(ownerId, bookingId, approved);
     }
 
     @GetMapping("{bookingId}")
-    public BookingDtoWithItemAndUser findById(@RequestHeader("X-Sharer-User-Id") Long requesterId,
+    public BookingDtoWithItemAndUser findById(@RequestHeader(USER_HEADER) Long requesterId,
                                               @PathVariable Long bookingId) {
         log.info("BookingController: обработка запроса на поиск бронирования с id {}", bookingId);
         return service.findById(requesterId, bookingId);
     }
 
     @GetMapping
-    public List<BookingDtoWithItemAndUser> findAllByUserAndState(@RequestHeader("X-Sharer-User-Id") Long requesterId,
+    public List<BookingDtoWithItemAndUser> findAllByUserAndState(@RequestHeader(USER_HEADER) Long requesterId,
                                                                  @RequestParam(defaultValue = "ALL") String state) {
         log.info("BookingController: обработка запроса от пользователя {} на поиск бронирований по состоянию {}",
                 requesterId, state);
@@ -47,7 +49,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDtoWithItemAndUser> findAllByOwnerAndState(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+    public List<BookingDtoWithItemAndUser> findAllByOwnerAndState(@RequestHeader(USER_HEADER) Long ownerId,
                                                                   @RequestParam(defaultValue = "ALL") String state) {
         log.info("BookingController: обработка запроса от пользователя {} на поиск всех бронирований его вещей с " +
                 "состоянием {}", ownerId, state);

@@ -101,9 +101,7 @@ public class ItemServiceImpl implements ItemService {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
 
-        // List<Item> ownerItems = storage.findAllByOwnerIdOrderByIdAsc(userId);
-
-        Map<Long, Item> items = storage.findAllByOwnerIdOrderByIdAsc(userId).stream()
+        Map<Long, Item> items = storage.findAllByOwnerId(userId, Sort.by(ASC, "id")).stream()
                 .collect(Collectors.toMap(Item::getId, Function.identity()));
 
         Map<Item, List<Comment>> comments = commentStorage.findByItemIn(new ArrayList<>(items.values()),

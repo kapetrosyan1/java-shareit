@@ -13,6 +13,8 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.Constant.USER_HEADER;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -21,14 +23,14 @@ public class ItemController {
     private final ItemService service;
 
     @PostMapping
-    public ItemResponseDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @RequestBody @Valid ItemRequestDto itemRequestDto) {
+    public ItemResponseDto create(@RequestHeader(USER_HEADER) Long userId,
+                                  @RequestBody @Valid ItemRequestDto itemRequestDto) {
         log.info("ItemController: обработка запроса от пользователя " + userId + " на добавление вещи + itemDto.toString()");
         return service.create(userId, itemRequestDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
+    public CommentResponseDto addComment(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long itemId,
                                          @RequestBody @Valid CommentRequestDto commentRequestDto) {
         log.info("ItemController: обработка запроса от пользователя " + userId + " на добавление комментария " +
                 commentRequestDto.toString() + " к вещи " + itemId);
@@ -36,7 +38,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemResponseDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemResponseDto update(@RequestHeader(USER_HEADER) Long userId,
                                   @PathVariable Long itemId,
                                   @RequestBody ItemRequestDto itemRequestDto) {
         log.info("ItemController: обработка запроса на обновление вещи с id {} от пользователя {}", itemId, userId);
@@ -44,13 +46,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemResponseDtoWithBookings findById(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemResponseDtoWithBookings findById(@PathVariable Long itemId, @RequestHeader(USER_HEADER) Long userId) {
         log.info("ItemController: обработка запроса на поиск вещи с id {}", itemId);
         return service.findById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemResponseDtoWithBookings> findOwnersItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemResponseDtoWithBookings> findOwnersItems(@RequestHeader(USER_HEADER) Long userId) {
         log.info("ItemController: обработка запроса на поиск вещей пользователя с id {}", userId);
         return service.findOwnersItems(userId);
     }
@@ -62,7 +64,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public void delete(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public void delete(@RequestHeader(USER_HEADER) Long userId,
                        @PathVariable Long itemId) {
         log.info("ItemController: обработка запроса на удаление вещи с id {} от пользователя {}", itemId, userId);
         service.delete(userId, itemId);
