@@ -1,59 +1,71 @@
 package ru.practicum.shareit.item.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.comment.CommentRequestDto;
+import ru.practicum.shareit.item.comment.CommentResponseDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseDtoWithBookings;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.Constant.USER_HEADER;
+
 @RestController
-@RequestMapping("/items")
 @Slf4j
+@RequiredArgsConstructor
+@RequestMapping("/items")
 public class ItemController {
     private final ItemService service;
 
-    public ItemController(ItemService service) {
-        this.service = service;
+    @PostMapping
+    public ItemResponseDto create(@RequestHeader(USER_HEADER) Long userId,
+                                  @RequestBody @Valid ItemRequestDto itemRequestDto) {
+        log.info("ItemController: обработка запроса от пользователя " + userId + " на добавление вещи + itemDto.toString()");
+        return service.create(userId, itemRequestDto);
     }
 
-    @PostMapping
-    public ItemDto create(@Valid @RequestHeader("X-Sharer-User-Id") int userId,
-                          @RequestBody @Valid ItemDto itemDto) {
-        log.info("ItemController: обработка запроса от пользователя " + userId + " на добавление вещи + itemDto.toString()");
-        return service.create(userId, itemDto);
+    @PostMapping("/{itemId}/comment")
+    public CommentResponseDto addComment(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long itemId,
+                                         @RequestBody @Valid CommentRequestDto commentRequestDto) {
+        log.info("ItemController: обработка запроса от пользователя " + userId + " на добавление комментария " +
+                commentRequestDto.toString() + " к вещи " + itemId);
+        return service.addComment(userId, itemId, commentRequestDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") int userId,
-                          @PathVariable int itemId,
-                          @RequestBody ItemDto itemDto) {
+    public ItemResponseDto update(@RequestHeader(USER_HEADER) Long userId,
+                                  @PathVariable Long itemId,
+                                  @RequestBody ItemRequestDto itemRequestDto) {
         log.info("ItemController: обработка запроса на обновление вещи с id {} от пользователя {}", itemId, userId);
-        return service.update(userId, itemId, itemDto);
+        return service.update(userId, itemId, itemRequestDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findById(@PathVariable int itemId) {
+    public ItemResponseDtoWithBookings findById(@PathVariable Long itemId, @RequestHeader(USER_HEADER) Long userId) {
         log.info("ItemController: обработка запроса на поиск вещи с id {}", itemId);
-        return service.findById(itemId);
+        return service.findById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> findOwnersItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemResponseDtoWithBookings> findOwnersItems(@RequestHeader(USER_HEADER) Long userId) {
         log.info("ItemController: обработка запроса на поиск вещей пользователя с id {}", userId);
         return service.findOwnersItems(userId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
+    public List<ItemResponseDto> searchItems(@RequestParam String text) {
         log.info("ItemController: обработка запроса на поиск вещей, содержащих в названии или описании фрагмент {}", text);
         return service.searchItems(text);
     }
 
     @DeleteMapping("/{itemId}")
-    public void delete(@RequestHeader("X-Sharer-User-Id") int userId,
-                       @PathVariable int itemId) {
+    public void delete(@RequestHeader(USER_HEADER) Long userId,
+                       @PathVariable Long itemId) {
         log.info("ItemController: обработка запроса на удаление вещи с id {} от пользователя {}", itemId, userId);
         service.delete(userId, itemId);
     }

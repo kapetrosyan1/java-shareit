@@ -1,10 +1,15 @@
 package ru.practicum.shareit.user.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.exceptions.ValidationException;
-import ru.practicum.shareit.user.dao.UserStorage;
-import ru.practicum.shareit.user.dto.UserDto;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.exceptions.NotFoundException;
+import ru.practicum.shareit.user.dto.UserCreationDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserStorage;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -13,45 +18,55 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserStorage storage;
 
-    public UserServiceImpl(UserStorage storage) {
-        this.storage = storage;
-    }
-
     @Override
-    public List<UserDto> findAll() {
+    public List<UserResponseDto> findAll() {
         log.info("UserService: Происходит обработка запроса на получение всех пользователей");
         return storage.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(UserMapper::toUserResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserDto findById(int userId) {
+    public UserResponseDto findById(Long userId) {
         log.info("UserService: Происходит обработка запроса на получение пользователя с id {}", userId);
-        return UserMapper.toUserDto(storage.findById(userId));
+        return UserMapper.toUserResponseDto(storage.findById(userId).orElseThrow(
+                () -> new NotFoundException(String.format("Пользователь с id %d не найден", userId))));
     }
 
     @Override
-    public UserDto create(UserDto userDto) {
-        log.info("UserService: Происходит обработка запроса на создание пользователя с email {}", userDto.getEmail());
-        if (userDto.getEmail() == null || userDto.getName() == null) {
-            throw new ValidationException("email пользователя не может быть пустым");
-        }
-        return UserMapper.toUserDto(storage.create(userDto));
+    @Transactional
+    public UserResponseDto create(UserCreationDto userCreationDto) {
+        log.info("UserService: Происходит обработка запроса на создание пользователя с email {}", userCreationDto.getEmail());
+        return UserMapper.toUserResponseDto(storage.save(UserMapper.fromUserCreationDto(userCreationDto)));
     }
 
     @Override
-    public UserDto update(UserDto userDto, int userId) {
+    @Transactional
+    public UserResponseDto update(UserRequestDto userRequestDto, Long userId) {
         log.info("UserService: Происходит обработка запроса на обновление пользователя с id {}", userId);
-        return UserMapper.toUserDto(storage.update(userDto, userId));
+        User user = storage.findById(userId).orElseThrow(() -> new NotFoundException(String.format(
+                "Пользователь с id %d не найден", userId)));
+        User updatedUser = UserMapper.toUser(userRequestDto);
+
+        if (updatedUser.getName() != null) {
+            user.setName(updatedUser.getName());
+        }
+        if (updatedUser.getEmail() != null) {
+            user.setEmail(updatedUser.getEmail());
+        }
+        storage.save(user);
+        return UserMapper.toUserResponseDto(user);
     }
 
     @Override
-    public void delete(int userId) {
+    @Transactional
+    public void delete(Long userId) {
         log.info("UserService: Происходит обработка запроса на удаление пользователя с id {}", userId);
-        storage.delete(userId);
+        storage.deleteById(userId);
     }
 }
