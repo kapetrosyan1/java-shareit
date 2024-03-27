@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.request.repository.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserStorage;
 
@@ -43,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserStorage userStorage;
     private final BookingStorage bookingStorage;
     private final CommentStorage commentStorage;
+    private final ItemRequestStorage itemRequestStorage;
 
     @Override
     @Transactional
@@ -50,6 +53,11 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: обработка запроса от пользователя {} на добавление вещи {}", userId,
                 itemRequestDto.toString());
         Item item = ItemMapper.toItem(itemRequestDto);
+        if (itemRequestDto.getRequestId() != null) {
+            item.setItemRequest(itemRequestStorage.findById(itemRequestDto.getRequestId()).orElseThrow(() ->
+                    new NotFoundException(String.format("ItemRequest с id %d не найден", itemRequestDto.getRequestId()))
+            ));
+        }
         item.setOwner(userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId))));
         return ItemMapper.toItemResponseDto(storage.save(item));
@@ -96,12 +104,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDtoWithBookings> findOwnersItems(Long userId) {
+    public List<ItemResponseDtoWithBookings> findOwnersItems(Long userId, int from, int size) {
         log.info("ItemService: обработка запроса на поиск вещей пользователя с id {}", userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
+        PageRequest pageRequest = PageRequest.of((from / size), size, Sort.by(ASC, "id"));
 
-        Map<Long, Item> items = storage.findAllByOwnerId(userId, Sort.by(ASC, "id")).stream()
+        Map<Long, Item> items = storage.findAllByOwnerId(userId, pageRequest).getContent().stream()
                 .collect(Collectors.toMap(Item::getId, Function.identity()));
 
         Map<Item, List<Comment>> comments = commentStorage.findByItemIn(new ArrayList<>(items.values()),
@@ -122,12 +131,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDto> searchItems(String text) {
+    public List<ItemResponseDto> searchItems(String text, int from, int size) {
         log.info("ItemService: обработка запроса на поиск вещей, содержащих в названии или описании фрагмент {}", text);
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        return storage.searchItems(text).stream()
+        PageRequest pageRequest = PageRequest.of((from / size), size);
+        return storage.searchItems(text, pageRequest).getContent().stream()
                 .map(ItemMapper::toItemResponseDto)
                 .collect(toList());
     }
@@ -160,7 +170,6 @@ public class ItemServiceImpl implements ItemService {
         User author = userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
         Comment comment = CommentMapper.toComment(commentRequestDto, author, item);
-        // comment.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentResponseDto(commentStorage.save(comment));
     }
 

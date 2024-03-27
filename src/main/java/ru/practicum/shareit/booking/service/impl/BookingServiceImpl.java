@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingStorage storage;
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
+    private final Sort sortStartDesc = Sort.by(DESC, "startDate");
 
     @Override
     @Transactional
@@ -93,36 +95,33 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoWithItemAndUser> findAllByUserAndState(Long userId, String stateString) {
+    public List<BookingDtoWithItemAndUser> findAllByUserAndState(Long userId, String stateString, int from, int size) {
         log.info("BookingService: получен запрос на поиск всех бронирований с состоянием {} от пользователя {}",
                 stateString, userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
         State state = stringToState(stateString);
+        PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = storage.findAllByBookerId(userId, Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByBookerId(userId, pageRequest).getContent();
                 break;
             case CURRENT:
                 bookings = storage.findAllByBookerIdAndStartDateBeforeAndEndDateAfter(userId, LocalDateTime.now(),
-                        LocalDateTime.now(), Sort.by(DESC, "startDate"));
+                        LocalDateTime.now(), pageRequest).getContent();
                 break;
             case PAST:
-                bookings = storage.findAllByBookerIdAndEndDateBefore(userId, LocalDateTime.now(),
-                        Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByBookerIdAndEndDateBefore(userId, LocalDateTime.now(), pageRequest).getContent();
                 break;
             case FUTURE:
-                bookings = storage.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(),
-                        Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(), pageRequest).getContent();
                 break;
             case WAITING:
-                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING,
-                        Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageRequest).getContent();
                 break;
             case REJECTED:
-                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED,
-                        Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageRequest).getContent();
                 break;
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -131,7 +130,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoWithItemAndUser> findAllByOwnerAndState(Long ownerId, String stateString) {
+    public List<BookingDtoWithItemAndUser> findAllByOwnerAndState(Long ownerId, String stateString, int from, int size) {
         log.info("BookingService: получен запрос на поиск всех бронирований с состоянием {} от собственника {}",
                 stateString, ownerId);
         List<Long> ids = itemStorage.findAllOwnersItemsIds(ownerId);
@@ -140,30 +139,31 @@ public class BookingServiceImpl implements BookingService {
         }
         List<Booking> bookings;
         State state = stringToState(stateString);
+        PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
         switch (state) {
             case ALL:
-                bookings = storage.findAllByItemOwnerId(ownerId, Sort.by(DESC, "startDate"));
+                bookings = storage.findAllByItemOwnerId(ownerId, pageRequest).getContent();
                 break;
             case CURRENT:
                 bookings = storage.findAllByItemOwnerIdAndStartDateBeforeAndEndDateAfter(
                         ownerId, LocalDateTime.now(), LocalDateTime.now(),
-                        Sort.by(DESC, "startDate"));
+                        pageRequest).getContent();
                 break;
             case PAST:
                 bookings = storage.findAllByItemOwnerIdAndEndDateBefore(ownerId, LocalDateTime.now(),
-                        Sort.by(DESC, "startDate"));
+                        pageRequest).getContent();
                 break;
             case FUTURE:
                 bookings = storage.findAllByItemOwnerIdAndStartDateAfter(ownerId, LocalDateTime.now(),
-                        Sort.by(DESC, "startDate"));
+                        pageRequest).getContent();
                 break;
             case WAITING:
                 bookings = storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING,
-                        Sort.by(DESC, "startDate"));
+                        pageRequest).getContent();
                 break;
             case REJECTED:
                 bookings = storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED,
-                        Sort.by(DESC, "startDate"));
+                        pageRequest).getContent();
                 break;
             default:
                 throw new BadRequestException(String.format("Unknown state: %s", stateString));
