@@ -175,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
 
     private ItemResponseDtoWithBookings setItemComments(Item item, Map<Item, List<Comment>> comments) {
         if (comments.isEmpty() || comments.get(item) == null) {
-            return ItemMapper.toItemResponseDtoWithBookings(item);
+            return ItemMapper.toItemResponseDtoWithBookings(item, CommentMapper.toCommentResponseDtoList(new ArrayList<>()));
         }
         return ItemMapper.toItemResponseDtoWithBookings(item, CommentMapper.toCommentResponseDtoList(comments.get(item)));
 

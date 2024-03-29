@@ -77,6 +77,14 @@ public class ItemStorageTest {
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    void testItemsEqual() {
+        item1 = itemStorage.save(item1);
+        Item exampleItem = itemStorage.findById(item1.getId()).get();
+        assertEquals(exampleItem, item1);
+    }
+
+    @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindAllOwnersItemsIds() {
         itemStorage.save(item1);
         itemStorage.save(item2);

@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserStorage;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
                 String.format("Пользователь с id %d не найден", userId)));
         State state = stringToState(stateString);
         PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
-        List<Booking> bookings;
+        List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
                 bookings = storage.findAllByBookerId(userId, pageRequest).getContent();
@@ -123,8 +124,6 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 bookings = storage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageRequest).getContent();
                 break;
-            default:
-                throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
         return bookings.stream().map(BookingMapper::toBookingDtoWithItemAndUser).collect(Collectors.toList());
     }
@@ -137,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
         if (ids.isEmpty()) {
             throw new NotFoundException(String.format("У пользователя с id %d нет вещей в собственности", ownerId));
         }
-        List<Booking> bookings;
+        List<Booking> bookings = new ArrayList<>();
         State state = stringToState(stateString);
         PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
         switch (state) {
@@ -165,8 +164,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings = storage.findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED,
                         pageRequest).getContent();
                 break;
-            default:
-                throw new BadRequestException(String.format("Unknown state: %s", stateString));
         }
         return bookings.stream().map(BookingMapper::toBookingDtoWithItemAndUser).collect(Collectors.toList());
     }

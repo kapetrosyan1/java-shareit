@@ -105,6 +105,18 @@ public class BookingServiceTest {
     }
 
     @Test
+    void testAddRequestFailStartEqualsEnd() {
+        BookingRequestDto bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setItemId(1L);
+        bookingRequestDto.setStart(LocalDateTime.now());
+        bookingRequestDto.setEnd(bookingRequestDto.getStart());
+
+        BadRequestException e = assertThrows(BadRequestException.class,
+                () -> bookingService.addRequest(bookingRequestDto, booker.getId()));
+        assertEquals("Дата завершения бронирования должна быть позже даты начала", e.getMessage());
+    }
+
+    @Test
     void testAddRequestFailItemNotFound() {
         BookingRequestDto bookingRequestDto = new BookingRequestDto();
         bookingRequestDto.setItemId(1L);
@@ -171,12 +183,22 @@ public class BookingServiceTest {
     }
 
     @Test
-    void testUpdateBooking() {
+    void testUpdateBookingAccepted() {
         when(bookingStorage.findById(anyLong())).thenReturn(Optional.of(booking));
         when(bookingStorage.save(any(Booking.class))).thenReturn(booking);
 
         BookingDtoWithItemAndUser responseDto = bookingService.update(1L, 1L, true);
         assertEquals(BookingStatus.APPROVED, responseDto.getStatus());
+        verify(bookingStorage, times(1)).save(any(Booking.class));
+    }
+
+    @Test
+    void testUpdateBookingRejected() {
+        when(bookingStorage.findById(anyLong())).thenReturn(Optional.of(booking));
+        when(bookingStorage.save(any(Booking.class))).thenReturn(booking);
+
+        BookingDtoWithItemAndUser responseDto = bookingService.update(1L, 1L, false);
+        assertEquals(BookingStatus.REJECTED, responseDto.getStatus());
         verify(bookingStorage, times(1)).save(any(Booking.class));
     }
 
@@ -188,6 +210,16 @@ public class BookingServiceTest {
                 () -> bookingService.update(2L, 1L, true));
         assertEquals(String.format("Пользователь %d не является собственником бронируемой вещи", booker.getId()),
                 e.getMessage());
+    }
+
+    @Test
+    void testUpdateBookingFailBookingNotFound() {
+        when(bookingStorage.findById(anyLong())).thenReturn(Optional.empty());
+
+        NotFoundException e = assertThrows(NotFoundException.class, () -> bookingService.update(1L, 1L,
+                true));
+
+        assertEquals("Бронирование с id 1 не найдено", e.getMessage());
     }
 
     @Test
