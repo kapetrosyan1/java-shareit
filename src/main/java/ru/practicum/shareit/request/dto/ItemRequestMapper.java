@@ -6,10 +6,10 @@ import ru.practicum.shareit.user.model.User;
 
 @UtilityClass
 public class ItemRequestMapper {
-    public ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User author) {
+    public ItemRequest toItemRequest(ItemRequestRequestDto itemRequestRequestDto, User author) {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setAuthor(author);
-        itemRequest.setDescription(itemRequestDto.getDescription());
+        itemRequest.setDescription(itemRequestRequestDto.getDescription());
         return itemRequest;
     }
 

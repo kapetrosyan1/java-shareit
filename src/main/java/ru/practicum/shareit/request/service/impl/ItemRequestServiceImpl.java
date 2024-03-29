@@ -11,7 +11,7 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemStorage;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -40,12 +40,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestResponseDto create(ItemRequestDto itemRequestDto, Long authorId) {
+    public ItemRequestResponseDto create(ItemRequestRequestDto itemRequestRequestDto, Long authorId) {
         log.info("ItemRequestService: обработка запроса от пользователя {} на добавление ItemRequest {}",
-                authorId, itemRequestDto.toString());
+                authorId, itemRequestRequestDto.toString());
         User author = userStorage.findById(authorId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", authorId)));
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, author);
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestRequestDto, author);
         return ItemRequestMapper.toItemRequestResponseDto(storage.save(itemRequest));
     }
 
@@ -64,6 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestResponseDto> findAllRequests(Long userId, int from, int size) {
+        log.info("ItemRequestService: обработка запроса от пользователя {} на поиск всех ItemRequest", userId);
         checkUser(userId);
         PageRequest pageRequest = PageRequest.of((from / size), size, Sort.by(DESC, "created"));
         List<ItemRequest> responseDtoList = storage.findAllByAuthorIdNot(userId, pageRequest).getContent();
@@ -76,8 +77,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestResponseDto findById(Long requesterId, Long itemRequestId) {
-        checkUser(requesterId);
+    public ItemRequestResponseDto findById(Long userId, Long itemRequestId) {
+        log.info("ItemRequestService: обработка запроса от пользователя {} на поиск ItemRequest с id {}",
+                userId, itemRequestId);
+        checkUser(userId);
         List<Item> itemList = itemStorage.findByItemRequestId(itemRequestId, Sort.by(ASC, "id"));
         ItemRequest itemRequest = storage.findById(itemRequestId).orElseThrow(() -> new NotFoundException(
                 String.format("ItemRequest с id %d не найден", itemRequestId)
@@ -86,6 +89,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private ItemRequestResponseDto setItemRequestItems(ItemRequest itemRequest, List<Item> items) {
+        log.info("ItemRequestService: конвертация ItemRequest c id {} в Dto и добавление вещей, добавленных по запросу",
+                itemRequest.getId());
         List<ItemResponseDto> itemResponseDtoList = new ArrayList<>();
         if (items != null) {
             for (Item item : items) {
@@ -98,6 +103,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private void checkUser(Long userId) {
+        log.info("ItemRequestService: проверка регистрации пользователя {}", userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
     }
