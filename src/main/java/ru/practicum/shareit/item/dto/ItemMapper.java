@@ -10,7 +10,6 @@ import java.util.List;
 public class ItemMapper {
     public Item toItem(ItemRequestDto itemRequestDto) {
         Item item = new Item();
-        item.setId(itemRequestDto.getId());
         item.setName(itemRequestDto.getName());
         item.setDescription(itemRequestDto.getDescription());
         item.setAvailable(itemRequestDto.getAvailable());

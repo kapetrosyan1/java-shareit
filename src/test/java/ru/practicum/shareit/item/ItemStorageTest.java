@@ -21,16 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 public class ItemStorageTest {
     @Autowired
-    ItemStorage itemStorage;
+    private ItemStorage itemStorage;
     @Autowired
-    UserStorage userStorage;
+    private UserStorage userStorage;
     @Autowired
-    ItemRequestStorage itemRequestStorage;
+    private ItemRequestStorage itemRequestStorage;
 
-    User user;
-    Item item1;
-    Item item2;
-    private ItemRequest itemRequest;
+    private User user;
+    private Item item1;
+    private Item item2;
+    public static ItemRequest itemRequest;
 
     @BeforeEach
     void setUp() {
@@ -55,19 +55,19 @@ public class ItemStorageTest {
         item1.setOwner(user);
         item1.setAvailable(true);
         item1.setItemRequest(itemRequest);
-        item1 = itemStorage.save(item1);
 
         item2 = new Item();
         item2.setAvailable(true);
         item2.setName("item2");
         item2.setDescription("item2Desc");
         item2.setOwner(user);
-        item2 = itemStorage.save(item2);
     }
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindAllByOwner() {
+        itemStorage.save(item1);
+        itemStorage.save(item2);
         List<Item> items = itemStorage.findAllByOwnerId(1L, PageRequest.of(0, 10,
                 Sort.by(Sort.Direction.ASC, "id"))).getContent();
         assertEquals(2, items.size());
@@ -78,6 +78,8 @@ public class ItemStorageTest {
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindAllOwnersItemsIds() {
+        itemStorage.save(item1);
+        itemStorage.save(item2);
         List<Long> ids = itemStorage.findAllOwnersItemsIds(1L);
         assertEquals(2, ids.size());
         assertEquals(1L, ids.get(0));
@@ -87,6 +89,8 @@ public class ItemStorageTest {
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testSearchItems() {
+        itemStorage.save(item1);
+        itemStorage.save(item2);
         List<Item> items = itemStorage.searchItems("em1", PageRequest.of(0, 10)).getContent();
         assertEquals(1, items.size());
         assertEquals(1L, items.get(0).getId());
@@ -95,6 +99,9 @@ public class ItemStorageTest {
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindByItemRequestIn() {
+        item1.setItemRequest(itemRequest);
+        itemStorage.save(item1);
+        itemStorage.save(item2);
         List<Item> items = itemStorage.findByItemRequestIn(List.of(itemRequest), Sort.by(Sort.Direction.ASC, "id"));
         assertEquals(1, items.size());
         assertEquals(1L, items.get(0).getId());
@@ -103,6 +110,8 @@ public class ItemStorageTest {
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindByItemRequestId() {
+        itemStorage.save(item1);
+        itemStorage.save(item2);
         List<Item> items = itemStorage.findByItemRequestId(1L, Sort.by(Sort.Direction.ASC, "id"));
         assertEquals(1, items.size());
         assertEquals(1L, items.get(0).getId());

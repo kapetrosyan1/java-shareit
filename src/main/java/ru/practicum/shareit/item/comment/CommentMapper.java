@@ -11,11 +11,9 @@ import java.util.List;
 public class CommentMapper {
     public Comment toComment(CommentRequestDto commentRequestDto, User author, Item item) {
         Comment comment = new Comment();
-        comment.setId(commentRequestDto.getId());
         comment.setText(commentRequestDto.getText());
         comment.setAuthor(author);
         comment.setItem(item);
-        comment.setCreated(commentRequestDto.getCreated());
         return comment;
     }
 

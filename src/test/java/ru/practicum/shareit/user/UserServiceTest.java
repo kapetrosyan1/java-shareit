@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserStorage;
 import ru.practicum.shareit.user.service.impl.UserServiceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +84,6 @@ public class UserServiceTest {
     @Test
     void testUpdate() {
         UserRequestDto updatedUser = new UserRequestDto();
-        updatedUser.setId(1L);
         updatedUser.setName("update");
         updatedUser.setEmail("update@update.com");
 
@@ -94,7 +94,6 @@ public class UserServiceTest {
         verify(userStorage, times(1)).save(any());
         assertEquals(updatedUser.getName(), userResponseDto.getName());
         assertEquals(updatedUser.getEmail(), userResponseDto.getEmail());
-        assertEquals(updatedUser.getId(), userResponseDto.getId());
     }
 
     @Test
@@ -107,6 +106,15 @@ public class UserServiceTest {
         List<UserResponseDto> responseDtoList = userService.findAll();
         verify(userStorage, times(1)).findAll();
         assertEquals(List.of(UserMapper.toUserResponseDto(user), UserMapper.toUserResponseDto(user1)), responseDtoList);
+    }
+
+    @Test
+    void testFindAllEmptySuccess() {
+        when(userStorage.findAll()).thenReturn(new ArrayList<>());
+
+        List<UserResponseDto> users = userService.findAll();
+
+        assertEquals(0, users.size());
     }
 
     @Test

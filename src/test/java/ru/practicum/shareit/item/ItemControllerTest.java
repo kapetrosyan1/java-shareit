@@ -136,7 +136,6 @@ public class ItemControllerTest {
     void testUpdateItem() throws Exception {
         when(itemService.update(anyLong(), anyLong(), any(ItemRequestDto.class))).thenReturn(responseDto);
         ItemRequestDto itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setId(1L);
         mvc.perform(patch("/items/1")
                         .content(mapper.writeValueAsString(itemRequestDto))
                         .header(USER_HEADER, "1")
@@ -197,7 +196,6 @@ public class ItemControllerTest {
     @Test
     void testAddComment() throws Exception {
         CommentRequestDto commentRequestDto = new CommentRequestDto();
-        commentRequestDto.setAuthorName(user.getName());
         commentRequestDto.setText("comment");
 
         CommentResponseDto commentResponseDto = new CommentResponseDto();

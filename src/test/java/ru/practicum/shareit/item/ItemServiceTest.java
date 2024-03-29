@@ -122,12 +122,11 @@ public class ItemServiceTest {
     @Test
     void testUpdateItem() {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setId(1L);
         itemRequestDto.setName("item");
         itemRequestDto.setDescription("description");
         itemRequestDto.setAvailable(true);
         when(userStorage.findById(anyLong())).thenReturn(Optional.of(user));
-        when(itemStorage.findByIdWithOwner(anyLong())).thenReturn(Optional.of(item));
+        when(itemStorage.findById(anyLong())).thenReturn(Optional.of(item));
         when(itemStorage.save(any(Item.class))).thenReturn(item);
 
         ItemResponseDto itemResponseDto = itemService.update(1L, 1L, itemRequestDto);
@@ -137,7 +136,7 @@ public class ItemServiceTest {
         assertEquals(itemResponseDto.getAvailable(), itemRequestDto.getAvailable());
         assertEquals(itemResponseDto.getId(), 1L);
         verify(userStorage, times(1)).findById(1L);
-        verify(itemStorage, times(1)).findByIdWithOwner(1L);
+        verify(itemStorage, times(1)).findById(1L);
         verify(itemStorage, times(1)).save(any(Item.class));
     }
 
@@ -167,7 +166,7 @@ public class ItemServiceTest {
     @Test
     void testDeleteItem() {
         when(userStorage.findById(anyLong())).thenReturn(Optional.of(user));
-        when(itemStorage.findByIdWithOwner(anyLong())).thenReturn(Optional.of(item));
+        when(itemStorage.findById(anyLong())).thenReturn(Optional.of(item));
 
         assertDoesNotThrow(() -> itemService.delete(1L, 1L));
         verify(itemStorage, times(1)).deleteById(1L);
@@ -188,7 +187,6 @@ public class ItemServiceTest {
                 any(BookingStatus.class), any(LocalDateTime.class))).thenReturn(Optional.of(new Booking()));
 
         CommentRequestDto commentRequestDto = new CommentRequestDto();
-        commentRequestDto.setAuthorName(user.getName());
         commentRequestDto.setText("comment");
 
         CommentResponseDto commentResponseDto = itemService.addComment(1L, 1L, commentRequestDto);

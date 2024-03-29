@@ -10,14 +10,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemStorage extends JpaRepository<Item, Long> {
-    @Query("select i from Item i " +
-            "join fetch i.owner " +
-            "where i.id = :id")
-    Optional<Item> findByIdWithOwner(@Param("id") Long id);
-
     Page<Item> findAllByOwnerId(Long ownerId, Pageable pageable);
 
     @Query(value = "select i.id from items i " +

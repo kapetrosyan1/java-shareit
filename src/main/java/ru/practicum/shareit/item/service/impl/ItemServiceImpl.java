@@ -69,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: обработка запроса на обновление вещи с id {} от пользователя {}", itemId, userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
-        Item item = storage.findByIdWithOwner(itemId).orElseThrow(() -> new NotFoundException(
+        Item item = storage.findById(itemId).orElseThrow(() -> new NotFoundException(
                 String.format("Не удалось найти вещь с id %d", itemId)));
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotEnoughRightsException(String.format(
@@ -148,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: обработка запроса на удаление вещи с id {} от пользователя {}", itemId, userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
-        Item item = storage.findByIdWithOwner(itemId).orElseThrow(() -> new NotFoundException(
+        Item item = storage.findById(itemId).orElseThrow(() -> new NotFoundException(
                 String.format("Не удалось найти вещь с id %d", itemId)));
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotEnoughRightsException(
