@@ -64,6 +64,7 @@ public class ItemStorageTest {
         item2.setOwner(user);
         item2 = itemStorage.save(item2);
     }
+
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void testFindAllByOwner() {
