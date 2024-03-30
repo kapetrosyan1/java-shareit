@@ -101,7 +101,7 @@ public class BookingServiceImpl implements BookingService {
                 stateString, userId);
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException(
                 String.format("Пользователь с id %d не найден", userId)));
-        State state = stringToState(stateString);
+        State state = State.ALL.stringToState(stateString);
         PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
@@ -137,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException(String.format("У пользователя с id %d нет вещей в собственности", ownerId));
         }
         List<Booking> bookings = new ArrayList<>();
-        State state = stringToState(stateString);
+        State state = State.ALL.stringToState(stateString);
         PageRequest pageRequest = PageRequest.of((from / size), size, sortStartDesc);
         switch (state) {
             case ALL:
@@ -166,16 +166,5 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         return bookings.stream().map(BookingMapper::toBookingDtoWithItemAndUser).collect(Collectors.toList());
-    }
-
-    private State stringToState(String stateString) {
-        log.info("BookingService: конвертация строки {} в элемент перечисления", stateString);
-        State state;
-        try {
-            state = State.valueOf(stateString);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException(String.format("Unknown state: %s", stateString));
-        }
-        return state;
     }
 }
