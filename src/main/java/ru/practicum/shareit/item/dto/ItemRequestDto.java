@@ -7,11 +7,11 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class ItemRequestDto {
-    private Long id;
     @NotBlank
     private String name;
     @NotBlank
     private String description;
     @NotNull
     private Boolean available;
+    private Long requestId;
 }

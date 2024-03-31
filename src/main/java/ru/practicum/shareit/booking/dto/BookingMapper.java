@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.model.User;
 public class BookingMapper {
     public Booking toBooking(BookingRequestDto bookingRequestDto, User booker, Item item, BookingStatus status) {
         Booking booking = new Booking();
-        booking.setId(bookingRequestDto.getId());
         booking.setStartDate(bookingRequestDto.getStart());
         booking.setEndDate(bookingRequestDto.getEnd());
         booking.setItem(item);

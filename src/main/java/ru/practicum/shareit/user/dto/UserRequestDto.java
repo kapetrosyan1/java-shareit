@@ -6,7 +6,6 @@ import javax.validation.constraints.Email;
 
 @Data
 public class UserRequestDto {
-    private Long id;
     private String name;
     @Email(message = "передан некорректный формат email")
     private String email;

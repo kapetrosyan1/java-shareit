@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 public class UserCreationDto {
-    private Long id;
     @NotBlank(message = "имя пользователя не может быть пустым")
     private String name;
     @Email(message = "передан некорректный формат email")
