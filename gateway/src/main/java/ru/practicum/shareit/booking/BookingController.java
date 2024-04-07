@@ -25,7 +25,7 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     @GetMapping
-    public ResponseEntity<Object> getBookings(@RequestHeader(USER_HEADER) long userId,
+    public ResponseEntity<Object> getBookings(@RequestHeader(USER_HEADER) Long userId,
                                               @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                               @PositiveOrZero @RequestParam (name = "from", defaultValue = "0") Integer from,
                                               @Positive @RequestParam (name = "size", defaultValue = "10") Integer size) {
@@ -36,21 +36,21 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> bookItem(@RequestHeader(USER_HEADER) long userId,
+    public ResponseEntity<Object> bookItem(@RequestHeader(USER_HEADER) Long userId,
                                            @RequestBody @Valid BookItemRequestDto requestDto) {
         log.info("BOOKING_GATEWAY: Creating booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader(USER_HEADER) long userId,
+    public ResponseEntity<Object> getBooking(@RequestHeader(USER_HEADER) Long userId,
                                              @PathVariable Long bookingId) {
         log.info("BOOKING_GATEWAY: Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> updateBooking(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> updateBooking(@RequestHeader(USER_HEADER) @Positive Long userId,
                                                 @PathVariable @Positive Long bookingId,
                                                 @RequestParam Boolean approved) {
         log.info("BOOKING_GATEWAY: Update booking {}, userId={}", bookingId, userId);
@@ -58,7 +58,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getOwnerBookings(@RequestHeader(USER_HEADER) long userId,
+    public ResponseEntity<Object> getOwnerBookings(@RequestHeader(USER_HEADER) Long userId,
                                                     @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {

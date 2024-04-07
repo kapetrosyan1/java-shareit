@@ -24,14 +24,14 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> addItem(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> addItem(@RequestHeader(USER_HEADER) @Positive Long userId,
                                           @RequestBody @Valid ItemRequestDto itemRequestDto) {
         log.info("ITEM_GATEWAY: add item {} from user userId={}", itemRequestDto, userId);
         return itemClient.addItem(userId, itemRequestDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> commentItem(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> commentItem(@RequestHeader(USER_HEADER) @Positive Long userId,
                                               @PathVariable @Positive Long itemId,
                                               @RequestBody @Valid CommentRequestDto commentRequestDto) {
         log.info("ITEM_GATEWAY: add comment {} to item itemId={} from user userId={}", commentRequestDto, itemId, userId);
@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> updateItem(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> updateItem(@RequestHeader(USER_HEADER) @Positive Long userId,
                                              @PathVariable @Positive Long itemId,
                                              @RequestBody ItemRequestDto itemRequestDto) {
         log.info("ITEM_GATEWAY: update item itemId={} from user userId={} by dto {}", itemId, userId, itemRequestDto);
@@ -47,14 +47,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItem(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> getItem(@RequestHeader(USER_HEADER) @Positive Long userId,
                                           @PathVariable @Positive Long itemId) {
         log.info("ITEM_GATEWAY: get item itemId={} request from user userId={}", itemId, userId);
         return itemClient.getItem(userId, itemId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getOwnerItems(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> getOwnerItems(@RequestHeader(USER_HEADER) @Positive Long userId,
                                                 @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                 @RequestParam(defaultValue = "10") @PositiveOrZero int size) {
         log.info("ITEM_GATEWAY: find owner ownerId={} items, page from={} size={}", userId, from, size);
@@ -62,7 +62,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> search(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> search(@RequestHeader(USER_HEADER) @Positive Long userId,
                                          @RequestParam String text,
                                          @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                          @RequestParam(defaultValue = "10") @PositiveOrZero int size) {
@@ -71,7 +71,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public ResponseEntity<Object> deleteItem(@RequestHeader(USER_HEADER) @Positive long userId,
+    public ResponseEntity<Object> deleteItem(@RequestHeader(USER_HEADER) @Positive Long userId,
                                              @PathVariable @Positive Long itemId) {
         log.info("ITEM_GATEWAY: delete item itemId={} request from user userId={}", itemId, userId);
         return itemClient.deleteItem(userId, itemId);

@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUser(@PathVariable @Positive long userId) {
+    public ResponseEntity<Object> getUser(@PathVariable @Positive Long userId) {
         log.info("USER_GATEWAY: Get user by userId={}", userId);
         return userClient.getUser(userId);
     }
@@ -40,13 +40,13 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(@RequestBody @Valid UserRequestDto userRequestDto,
-                                             @PathVariable @Positive long userId) {
+                                             @PathVariable @Positive Long userId) {
         log.info("USER_GATEWAY: Update user userId={} by data {}", userId, userRequestDto);
         return userClient.updateUser(userRequestDto, userId);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable @Positive long userId) {
+    public ResponseEntity<Object> deleteUser(@PathVariable @Positive Long userId) {
         log.info("USER_GATEWAY: delete user userId={}", userId);
         return userClient.deleteUser(userId);
     }
